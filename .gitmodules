@@ -1,3 +1,6 @@
 [submodule "workspaces/isaac_ros-dev/src/isaac_ros_common"]
 	path = workspaces/isaac_ros-dev/src/isaac_ros_common
 	url = git@github.com:stargaze221/isaac_ros_common.git
+[submodule "workspaces/isaac_ros-dev/src/isaac_ros_nvblox"]
+	path = workspaces/isaac_ros-dev/src/isaac_ros_nvblox
+	url = git@github.com:stargaze221/isaac_ros_nvblox.git
