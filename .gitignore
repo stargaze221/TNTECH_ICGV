@@ -1,3 +1,5 @@
 **/build/
 **/install/
 **/log/
+**/isaac_ros_assets/
+.vscode
