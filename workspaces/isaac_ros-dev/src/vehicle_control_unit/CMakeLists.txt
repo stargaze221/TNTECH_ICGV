@@ -1,31 +1,20 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 project(vehicle_control_unit)
 
 # Find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(rclpy REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 
-# Add C++ executable
+# C++ node (cpp_node.cpp)
 add_executable(cpp_node src/cpp_node.cpp)
-ament_target_dependencies(cpp_node rclcpp std_msgs)
+ament_target_dependencies(cpp_node rclcpp)
+install(TARGETS cpp_node DESTINATION lib/${PROJECT_NAME})
 
-# Install C++ executable
-install(TARGETS
-  cpp_node
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-# Install Python node (without include directories, it's not needed for Python)
-install(PROGRAMS
-  scripts/python_node.py
-  DESTINATION lib/${PROJECT_NAME}
-)
+# Install Python package using setup.py
+ament_python_install_package(${PROJECT_NAME})
 
 # Install launch files
-install(DIRECTORY launch/
-  DESTINATION share/${PROJECT_NAME}/launch
-)
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 ament_package()

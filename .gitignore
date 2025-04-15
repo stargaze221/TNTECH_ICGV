@@ -3,3 +3,4 @@
 **/log/
 **/isaac_ros_assets/
 .vscode
+*.pyc
