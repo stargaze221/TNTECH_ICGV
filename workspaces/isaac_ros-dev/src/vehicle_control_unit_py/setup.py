@@ -1,22 +1,22 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 
 package_name = 'vehicle_control_unit_py'
 
 setup(
     name=package_name,
-    version='0.0.0',
-    packages=find_packages(exclude=['test']),
+    version='0.1.0',
+    packages=[package_name],
     data_files=[
-        ('share/ament_index/resource_index/packages',
-            ['resource/' + package_name]),
+        ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/launch', ['launch/my_launch.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='yoonlab07nano',
-    maintainer_email='yoonlab07nano@todo.todo',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    maintainer='Your Name',
+    maintainer_email='your@email.com',
+    description='Python-based ROS 2 node example with launch file',
+    license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [

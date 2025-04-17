@@ -2,36 +2,46 @@
 
 ## Building Modified Isaac Ros Environment
 
-After cloning this repo, download the sources from the other referenced repos.
+After cloning this repo, download the sources from the other referenced repos.(host)
 ```bash
-yoonlab07nano@ubuntu:~$ git submodule update --init --recursive
+git submodule update --init --recursive
+cd workspaces/isaac_ros-dev/src/isaac_ros_common
+git checkout tntech_igvc
 ```
 
-It is convenient to set the `ISAAC_ROS_WS` environment variable to your `.bashrc` file:
+It is convenient to set the `ISAAC_ROS_WS` environment variable to your `.bashrc` file:(host)
 ```bash
-yoonlab07nano@ubuntu:~$ echo 'export ISAAC_ROS_WS=/home/<username>/TNTECH_ICGV/workspaces/isaac_ros-dev' >> ~/.bashrc
-yoonlab07nano@ubuntu:~$ source ~/.bashrc
+echo 'export ISAAC_ROS_WS=/home/<username>/TNTECH_ICGV/workspaces/isaac_ros-dev' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 Also, to append my docker file, e.g., `isaac_ros_common/docker/Dockerfile.yoonlab`, i.e., 
-add the following line to the config file located at `isaac_ros_common/scripts/.isaac_ros_common-config`:
+add the following line to the config file located at `isaac_ros_common/scripts/.isaac_ros_common-config`:(host)
 ```bash
-yoonlab07nano@ubuntu:~$ echo 'CONFIG_IMAGE_KEY=ros2_humble.realsense.yoonlab' >> isaac_ros_common/scripts/.isaac_ros_common-config
+echo 'CONFIG_IMAGE_KEY=ros2_humble.realsense.yoonlab' >> isaac_ros_common/scripts/.isaac_ros_common-config
 ```
-If the file does  not exist then add the file in the path.
-
+If the file does  not exist then add the file in the path.(host)
 ```bash
-yoonlab07nano@ubuntu:~$ cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
+cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
 ./scripts/run_dev.sh -d ${ISAAC_ROS_WS}
 ```
 
-After the Docker images are built, you are in the container. Build the isaac_ros packages.
+After the Docker images are built, you are in the container. Build the isaac_ros packages.(docker)
 
 ```bash
-admin@ubuntu:/workspaces/isaac_ros-dev$ colcon build
+colcon build
 ```
 
+To rean Realsense example (docker)
+```bash
+cd /workspaces/isaac_ros-dev
+colcon build --symlink-install --packages-up-to realsense_splitter
+source install/setup.bash
+```
 
 ## The Current Status
-- NVblox with Realsense Camera
-    - 
+- NVblox with Realsense Camera (docker)
+```bash
+ros2 launch nvblox_examples_bringup realsense_example.launch.py
+```
+- Interface with Arudino that sends and receives PWM signals.    
