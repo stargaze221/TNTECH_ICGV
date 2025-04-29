@@ -21,6 +21,10 @@ import isaac_ros_launch_utils as lu
 from nvblox_ros_python_utils.nvblox_launch_utils import NvbloxMode, NvbloxCamera, NvbloxPeopleSegmentation
 from nvblox_ros_python_utils.nvblox_constants import NVBLOX_CONTAINER_NAME
 
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.substitutions import FindPackageShare
+from launch_ros.actions import Node
 from launch.actions import ExecuteProcess
 
 def generate_launch_description() -> LaunchDescription:
@@ -38,7 +42,7 @@ def generate_launch_description() -> LaunchDescription:
                  cli=True)
     args.add_arg(
         'multicam_urdf_path',
-        lu.get_path('nvblox_examples_bringup',
+        lu.get_path('vehicle_control_unit_py',
                     'config/urdf/4_realsense_carter_example_calibration.urdf.xacro'),
         description='Path to a URDF file describing the camera rig extrinsics. Only used in multicam.',
         cli=True)
@@ -75,7 +79,33 @@ def generate_launch_description() -> LaunchDescription:
         True,
         description='Disable visualization of bandwidth-heavy topics',
         cli=True)
+    args.add_arg(
+        'navigation',
+        True,
+        description='Whether to enable nav2 for navigation in Isaac Sim.',
+        cli=True)
     actions = args.get_launch_actions()
+
+    # 1. Static TF: camera0_link → base_link (always safe to initialize first)
+    # Static transform to create base_link
+    # actions.append(
+    #     Node(
+    #         package='tf2_ros',
+    #         executable='static_transform_publisher',
+    #         name='camera0_to_base_link_tf',
+    #         arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'camera0_link'],
+    #         output='screen'
+    #     )
+    # )
+
+    actions.append(
+        Node(
+            package='vehicle_control_unit_py',
+            executable='odom_relay_node',
+            name='odom_relay_node',
+            output='screen',
+        )
+    )
 
     # ⬇️ ADD THIS RIGHT AFTER get_launch_actions()
     actions.append(
@@ -85,12 +115,12 @@ def generate_launch_description() -> LaunchDescription:
             output='screen',
         )
     )
-    # ⬆️ this ensures RealSense gets power-reset before anything else runs
 
+    # ⬆️ this ensures RealSense gets power-reset before anything else runs
 
     # Globally set use_sim_time if we're running from bag or sim
     actions.append(
-        SetParameter('use_sim_time', True, condition=IfCondition(lu.is_valid(args.rosbag))))
+        SetParameter('use_sim_time', False, condition=IfCondition(lu.is_valid(args.rosbag))))
 
     # Single or Multi-realsense
     is_multi_cam = UnlessCondition(lu.is_equal(args.num_cameras, '1'))
@@ -111,7 +141,7 @@ def generate_launch_description() -> LaunchDescription:
     # Realsense
     actions.append(
         lu.include(
-            'nvblox_examples_bringup',
+            'vehicle_control_unit_py',
             'launch/sensors/realsense.launch.py',
             launch_arguments={
                 'container_name': args.container_name,
@@ -123,7 +153,7 @@ def generate_launch_description() -> LaunchDescription:
     # Visual SLAM
     actions.append(
         lu.include(
-            'nvblox_examples_bringup',
+            'vehicle_control_unit_py',
             'launch/perception/vslam.launch.py',
             launch_arguments={
                 'container_name': args.container_name,
@@ -132,56 +162,11 @@ def generate_launch_description() -> LaunchDescription:
             # Delay for 1 second to make sure that the static topics from the rosbag are published.
             delay=1.0,
         ))
-    # People detection for multi-RS
-    camera_namespaces = ['camera0', 'camera1', 'camera2', 'camera3']
-    camera_input_topics = []
-    input_camera_info_topics= []
-    output_resized_image_topics = []
-    output_resized_camera_info_topics = []
-    for ns in camera_namespaces:
-        camera_input_topics.append(f'/{ns}/color/image_raw')
-        input_camera_info_topics.append(f'/{ns}/color/camera_info')
-        output_resized_image_topics.append(f'/{ns}/segmentation/image_resized')
-        output_resized_camera_info_topics.append(f'/{ns}/segmentation/camera_info_resized')
-
-    # People segmentation
-    actions.append(
-        lu.include(
-            'nvblox_examples_bringup',
-            'launch/perception/segmentation.launch.py',
-            launch_arguments={
-                'container_name': args.container_name,
-                'people_segmentation': args.people_segmentation,
-                'namespace_list': camera_namespaces,
-                'input_topic_list': camera_input_topics,
-                'input_camera_info_topic_list': input_camera_info_topics,
-                'output_resized_image_topic_list': output_resized_image_topics,
-                'output_resized_camera_info_topic_list': output_resized_camera_info_topics,
-                'num_cameras': args.num_cameras,
-                # fixing rosbag replay dropping fps
-                'one_container_per_camera': True
-            },
-            condition=IfCondition(lu.has_substring(args.mode, NvbloxMode.people_segmentation))))
-
-    # People detection
-    actions.append(
-        lu.include(
-            'nvblox_examples_bringup',
-            'launch/perception/detection.launch.py',
-            launch_arguments={
-                'namespace_list': camera_namespaces,
-                'input_topic_list': camera_input_topics,
-                'num_cameras': args.num_cameras,
-                'container_name': args.container_name,
-                # fixing rosbag replay dropping fps
-                'one_container_per_camera': True
-            },
-            condition=IfCondition(lu.has_substring(args.mode, NvbloxMode.people_detection))))
 
     # Nvblox
     actions.append(
         lu.include(
-            'nvblox_examples_bringup',
+            'vehicle_control_unit_py',
             'launch/perception/nvblox.launch.py',
             launch_arguments={
                 'container_name': args.container_name,
@@ -206,13 +191,22 @@ def generate_launch_description() -> LaunchDescription:
     # Visualization
     actions.append(
         lu.include(
-            'nvblox_examples_bringup',
+            'vehicle_control_unit_py',
             'launch/visualization/visualization.launch.py',
             launch_arguments={
                 'mode': args.mode,
                 'camera': camera_mode,
                 'use_foxglove_whitelist': args.use_foxglove_whitelist,
             }))
+    
+    actions.append(
+    lu.include(
+        'vehicle_control_unit_py',
+        'launch/navigation/tntech_navigation.launch.py',
+        launch_arguments={
+            'use_sim_time': 'false',  # or args.use_sim_time if defined
+        }
+    ))
 
     # Container
     # NOTE: By default (attach_to_container:=False) we launch a container which all nodes are

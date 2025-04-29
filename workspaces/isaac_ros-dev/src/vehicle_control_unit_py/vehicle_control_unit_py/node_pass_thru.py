@@ -26,7 +26,7 @@ class PWMPassthrough(Node):
     def sensor_callback(self, msg):
         # Directly forward sensor data as command
         self.publisher.publish(msg)
-        self.get_logger().info(f'Forwarded PWM: {msg.data}')
+        # self.get_logger().info(f'Forwarded PWM: {msg.data}')
 
 
 def main(args=None):

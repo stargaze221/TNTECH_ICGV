@@ -1,0 +1,46 @@
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Frame Timeout: 15.0
+      Update Interval: 0.0
+    - Class: rviz_default_plugins/RobotModel
+      Name: RobotModel
+      Robot Description: robot_description
+      TF Prefix: ""
+    - Class: rviz_default_plugins/Map
+      Name: GlobalCostmap
+      Topic: /global_costmap/costmap
+      Color Scheme: map
+      Alpha: 0.7
+    - Class: rviz_default_plugins/Map
+      Name: LocalCostmap
+      Topic: /local_costmap/costmap
+      Color Scheme: costmap
+      Alpha: 0.7
+    - Class: rviz_default_plugins/Path
+      Name: GlobalPlan
+      Topic: /plan
+      Color: 0.0; 0.0; 1.0  # Blue
+      Line Style: Lines
+      Line Width: 0.05
+    - Class: rviz_default_plugins/Path
+      Name: LocalPlan
+      Topic: /local_plan
+      Color: 0.0; 1.0; 0.0  # Green
+      Line Style: Lines
+      Line Width: 0.05
+    - Class: rviz_default_plugins/Odometry
+      Name: Odometry
+      Topic: /odom
+  Enabled: true
+  Fixed Frame: odom
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/SetInitialPose
+    - Class: rviz_default_plugins/SetGoal
+  Value: true

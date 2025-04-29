@@ -44,4 +44,12 @@ source install/setup.bash
 ```bash
 ros2 launch nvblox_examples_bringup realsense_example.launch.py
 ```
-- Interface with Arudino that sends and receives PWM signals.    
+- Interface with Arudino that sends and receives PWM signals.
+- The navigation stack is running but the interface is not working as intended.
+
+## The Current Task
+- Reverse engineering with ISAAC SIM Example
+    - I need to see the TF tree
+    - Also, I need to see the data stream also.
+    - I spent already a lot of time trying random explorative changes. I feel that I am repeating the same thing over and over. 
+    - I must look at ISAAC SIM Example on my desktop computer.

@@ -34,7 +34,7 @@ class DualPWMInterface(Node):
 
             # Send PWM values to Arduino
             command_str = f"{pwm1},{pwm2}\n"
-            print(command_str)
+            # print(command_str)
             self.ser.write(command_str.encode('utf-8'))
 
     def read_from_arduino(self):
@@ -47,7 +47,7 @@ class DualPWMInterface(Node):
                     parts = line.replace("SENSOR:", "").split(",")
                     pwm1 = int(parts[0])
                     pwm2 = int(parts[1])
-                    print(parts)
+                    # print(parts)
 
                     # Create a message to publish the sensor values
                     msg = Int32MultiArray()
