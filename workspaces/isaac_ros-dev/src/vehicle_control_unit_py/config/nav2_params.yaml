@@ -1,6 +1,6 @@
 bt_navigator:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     global_frame: map
     robot_base_frame: base_link
     bt_loop_duration: 10
@@ -61,15 +61,15 @@ bt_navigator:
 
 bt_navigator_navigate_through_poses_rclcpp_node:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
 
 bt_navigator_navigate_to_pose_rclcpp_node:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
 
 controller_server:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     controller_frequency: 20.0
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["stopped_goal_checker"]
@@ -88,12 +88,12 @@ controller_server:
       plugin: "nav2_mppi_controller::MPPIController"
       time_steps: 56
       model_dt: 0.05
-      batch_size: 2000
+      batch_size: 1000
       vx_std: 0.2
       wz_std: 0.4
-      vx_max: 0.5
-      vx_min: -0.35
-      wz_max: 1.9
+      vx_max: 0.3
+      vx_min: 0.0
+      wz_max: 1.0
       iteration_count: 1
       prune_distance: 1.7
       transform_tolerance: 0.1
@@ -211,7 +211,7 @@ global_costmap:
       publish_frequency: 1.0
       global_frame: map
       robot_base_frame: base_link
-      use_sim_time: True
+      use_sim_time: False
       footprint: "[ [0.15, 0.14], [0.15, -0.14], [-0.15, -0.14], [-0.15, 0.14] ]"
       resolution: 0.05
       width: 40
@@ -249,7 +249,7 @@ global_costmap:
 
 map_server:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     yaml_filename: ""
 
 # (Skipping the rest of parameters like behavior_server, smoother_server, etc for now since they were OK)
