@@ -29,12 +29,14 @@ setup(
     description='Python-based ROS 2 node example with launch file',
     license='MIT',
     tests_require=['pytest'],
+    
     entry_points={
-        'console_scripts': [
-            'python_node = vehicle_control_unit_py.python_node:main',
-            'pwm_passthrough = vehicle_control_unit_py.node_pass_thru:main',
-            'dual_pwm_interface = vehicle_control_unit_py.node_rc_servo_pwm:main',
-            'odom_relay_node = vehicle_control_unit_py.odom_relay_node:main',
+    'console_scripts': [
+        'odom_relay_node = vehicle_control_unit_py.odom_relay_node:main',
+        'rc_pwm_to_cmd_vel_node = vehicle_control_unit_py.rc_pwm_to_cmd_vel_node:main',
+        'cmdvel_to_pwm_serial_node = vehicle_control_unit_py.cmdvel_to_pwm_serial_node:main',
+        'cmdvel_to_pwm_serial_pid_ctrl_node = vehicle_control_unit_py.cmdvel_to_pwm_serial_pid_ctrl_node:main',
         ],
     },
+
 )

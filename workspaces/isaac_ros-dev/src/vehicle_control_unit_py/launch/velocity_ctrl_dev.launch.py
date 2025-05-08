@@ -144,15 +144,6 @@ def generate_launch_description() -> LaunchDescription:
         )
     )
 
-    # YDLiDAR Driver Launch
-    actions.append(
-        lu.include(
-            'ydlidar_ros2_driver',
-            'launch/ydlidar_launch.py',
-            launch_arguments={},
-        )
-    )
-
     actions.append(
         Node(
             package='tf2_ros',
@@ -161,94 +152,29 @@ def generate_launch_description() -> LaunchDescription:
         )
     )
 
+    # ------------------------ cmd_vel controller development ------------------------- #
+
     actions.append(
         Node(
             package='vehicle_control_unit_py',
-            executable='pwm_passthrough',
-            name='my_node',
-            output='screen'
+            executable='cmdvel_to_pwm_serial_pid_ctrl_node',
+            name='cmdvel_to_pwm_serial_pid_ctrl_node',
+            output='screen',
         )
     )
 
     actions.append(
         Node(
             package='vehicle_control_unit_py',
-            executable='dual_pwm_interface',
-            name='my_other_node',
-            output='screen'
+            executable='rc_pwm_to_cmd_vel_node',
+            name='rc_pwm_to_cmd_vel_node',
+            output='screen',
         )
     )
 
-    # People detection for multi-RS
-    camera_namespaces = ['camera0', 'camera1', 'camera2', 'camera3']
-    camera_input_topics = []
-    input_camera_info_topics= []
-    output_resized_image_topics = []
-    output_resized_camera_info_topics = []
-    for ns in camera_namespaces:
-        camera_input_topics.append(f'/{ns}/color/image_raw')
-        input_camera_info_topics.append(f'/{ns}/color/camera_info')
-        output_resized_image_topics.append(f'/{ns}/segmentation/image_resized')
-        output_resized_camera_info_topics.append(f'/{ns}/segmentation/camera_info_resized')
 
-    # People segmentation
-    actions.append(
-        lu.include(
-            'vehicle_control_unit_py',
-            'launch/perception/segmentation.launch.py',
-            launch_arguments={
-                'container_name': args.container_name,
-                'people_segmentation': args.people_segmentation,
-                'namespace_list': camera_namespaces,
-                'input_topic_list': camera_input_topics,
-                'input_camera_info_topic_list': input_camera_info_topics,
-                'output_resized_image_topic_list': output_resized_image_topics,
-                'output_resized_camera_info_topic_list': output_resized_camera_info_topics,
-                'num_cameras': args.num_cameras,
-                # fixing rosbag replay dropping fps
-                'one_container_per_camera': True
-            },
-            condition=IfCondition(lu.has_substring(args.mode, NvbloxMode.people_segmentation))))
+    # ------------------------ cmd_vel controller development ------------------------- #
 
-    # People detection
-    actions.append(
-        lu.include(
-            'vehicle_control_unit_py',
-            'launch/perception/detection.launch.py',
-            launch_arguments={
-                'namespace_list': camera_namespaces,
-                'input_topic_list': camera_input_topics,
-                'num_cameras': args.num_cameras,
-                'container_name': args.container_name,
-                # fixing rosbag replay dropping fps
-                'one_container_per_camera': True
-            },
-            condition=IfCondition(lu.has_substring(args.mode, NvbloxMode.people_detection))))
-
-    # Nvblox
-    actions.append(
-        lu.include(
-            'vehicle_control_unit_py',
-            'launch/perception/nvblox.launch.py',
-            launch_arguments={
-                'container_name': args.container_name,
-                'mode': args.mode,
-                'camera': camera_mode,
-                'num_cameras': args.num_cameras,
-            }))
-
-    # TF transforms for multi-realsense
-    actions.append(
-        lu.add_robot_description(robot_calibration_path=args.multicam_urdf_path,
-                                 condition=is_multi_cam)
-    )
-
-    # Play ros2bag
-    actions.append(
-        lu.play_rosbag(
-            bag_path=args.rosbag,
-            additional_bag_play_args=args.rosbag_args,
-            condition=IfCondition(lu.is_valid(args.rosbag))))
 
     # # Visualization
     actions.append(
@@ -261,27 +187,6 @@ def generate_launch_description() -> LaunchDescription:
                 'use_foxglove_whitelist': args.use_foxglove_whitelist,
             }))
     
-    # ⬇️  HERE YOU INSERT THE NAV2 BRINGUP
-
-    from ament_index_python.packages import get_package_share_directory
-    import os
-
-    nav2_params_path = os.path.join(
-        get_package_share_directory('vehicle_control_unit_py'),  # <-- your package name
-        'config',
-        'nav2_params.yaml'
-    )
-
-    actions.append(
-        lu.include(
-            'nav2_bringup',
-            'launch/navigation_launch.py',
-            launch_arguments={
-                'use_sim_time': 'false',   
-                'params_file': nav2_params_path,
-            }
-        )
-    )
 
     # Container
     # NOTE: By default (attach_to_container:=False) we launch a container which all nodes are

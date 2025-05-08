@@ -40,16 +40,19 @@ source install/setup.bash
 ```
 
 ## The Current Status
-- NVblox with Realsense Camera (docker)
+- Navigation Stack Works (docker)
 ```bash
-ros2 launch nvblox_examples_bringup realsense_example.launch.py
+ros2 launch vehicle_control_unit_py navigation_launch.py 
 ```
-- Interface with Arudino that sends and receives PWM signals.
-- The navigation stack is running but the interface is not working as intended.
-
 ## The Current Task
-- Reverse engineering with ISAAC SIM Example
-    - I need to see the TF tree
-    - Also, I need to see the data stream also.
-    - I spent already a lot of time trying random explorative changes. I feel that I am repeating the same thing over and over. 
-    - I must look at ISAAC SIM Example on my desktop computer.
+- Now, I need to set up controller using the following nodes that I drafted.
+    - cmdvel_to_pwm_with_rc_node.py
+    - sketch_apr28.ino
+
+- I need to add some development that uses:
+    - Visual Odom to see whether it follows the command
+    - The Ackerman ...
+
+- Immediate work to do:
+    - Use the velocity_ctrl_dev.launch.py
+    - Log odom, cmd, pwm
